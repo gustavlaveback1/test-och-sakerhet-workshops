@@ -1,48 +1,23 @@
 package se.yrgo.libraryapp.validators;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UsernameTest {
-    @Test
-    void correctUsername() {
-        assertThat(Username.validate("bosse")).isTrue();
+    @ParameterizedTest
+    @ValueSource(strings = { "bosse", "bosse1337", "B@s,s.e,1_1-2."})
+    void correctUsername(String username) {
+        assertThat(Username.validate(username)).isTrue();
     }
 
-    @Test
-    void incorrectUsername() {
-        assertThat(Username.validate("name with space")).isFalse();
+    @ParameterizedTest
+    @ValueSource(strings = { "name with space", "bos", "bosse!", "Bossääåö" })
+    @EmptySource
+    void incorrectUsername(String username) {
+        assertThat(Username.validate(username)).isFalse();
     }
-
-    @Test
-    void usernameWithNumber() {
-        assertThat(Username.validate("bosse1337")).isTrue();
-    }
-
-    @Test
-    void correctUsernameWithSpecialChars() {
-        assertThat(Username.validate("B@s,s.e,1_1-2.")).isTrue();
-    }
-
-    @Test
-    void incorrectUsernameWithSpecialCharacters() {
-        assertThat(Username.validate("bosse!")).isFalse();
-    }
-
-    @Test
-    void usernameUnderFourCharactersLong() {
-        assertThat(Username.validate("bos")).isFalse();
-    }
-
-    @Test
-    void usernameWithSwedishCharacters() {
-        assertThat(Username.validate("Bossääåö")).isFalse();
-    }
-
-    @Test
-    void emptyUsername(){
-        assertThat(Username.validate("")).isFalse();
-    }
-
 }
