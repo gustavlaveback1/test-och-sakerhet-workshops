@@ -11,7 +11,7 @@ class Utils {
 
     /**
      * Remove any non-alphabetic letters from a string, but keep any whitespace.
-     * Will return the string as all lowecase.
+     * Will return the string as all lowercase.
      * 
      * @param str the string to filter
      * @return a string with all non-letters removed (except whitespace)
