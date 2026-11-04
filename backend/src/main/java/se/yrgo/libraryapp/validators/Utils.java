@@ -7,7 +7,8 @@ import java.util.Map;
  * 
  */
 class Utils {
-    private Utils() {}
+    private Utils() {
+    }
 
     /**
      * Remove any non-alphabetic letters from a string, but keep any whitespace.
@@ -23,9 +24,11 @@ class Utils {
     }
 
     /**
-     * Converts any "leet speak" letters into their alphabetic equivalent (i.e. 4 to a etc.) and 
-     * then removes any letters that are not alphabetic (but not whitespace). Will return the string
-     * as all lowecase.
+     * Converts any "leet speak" letters into their alphabetic equivalent (i.e. 4 to
+     * a etc.) and
+     * then removes any letters that are not alphabetic (but not whitespace). Will
+     * return the string
+     * as all lowercase.
      * 
      * @param str the string to clean
      * @return a string without non alphabetic characters (except whitespace)

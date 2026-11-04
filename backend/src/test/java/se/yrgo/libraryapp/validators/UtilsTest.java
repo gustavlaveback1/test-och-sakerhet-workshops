@@ -13,15 +13,16 @@ public class UtilsTest {
     @CsvSource({
             "'', ''",
             "'bosse', 'bosse'",
-            "BOSSE, bosse",
-            "BoSsE, bosse",
-            "B!#@osse, bosse",
-            "bosse😊, bosse",
-            "B0S53, bs",
+            "'BOSSE', 'bosse'",
+            "'BoSsE', 'bosse'",
+            "'B!#@osse', 'bosse'",
+            "'bosse😊', 'bosse'",
+            "'B0S53', 'bs'",
             "'b o ss e', 'b o ss e'",
-            "bosseåäö, bosseåäö",
-            "60553, ''",
-            "bosseボッセ, bosseボッセ"
+            "'bosseåäö', 'bosseåäö'",
+            "'60553', ''",
+            "'bosseボッセ', 'bosseボッセ'",
+            "'bosse\nbredsladd', 'bosse\nbredsladd'",
     })
 
     void correctFiltering(String input, String expected) {
@@ -30,8 +31,16 @@ public class UtilsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {})
-    void cleanAndUnLeet(String str) {
+    @CsvSource({
+            "'60553', 'bosse'",
+            "'1337bosse', 'leetbosse'",
+            "'1337b o s s e', 'leetb o s s e'",
+            "'1337bössäå', 'leetbössäå'",
+            "'6o89R055','bobross'"
+    })
 
+    void cleanAndUnLeet(String input, String expected) {
+        assertThat(Utils.cleanAndUnLeet(input))
+                .isEqualTo(expected);
     }
 }
