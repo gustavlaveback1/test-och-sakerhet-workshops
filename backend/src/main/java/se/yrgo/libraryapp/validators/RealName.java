@@ -40,6 +40,10 @@ public final class RealName {
      * 
      */
     public static boolean validate(String name) {
+        if (name == null || name.isBlank()) {
+            return false;
+        }
+        
         String cleanName = Utils.cleanAndUnLeet(name);
         for (String word : invalidWords) {
             if (cleanName.contains(word)) {
