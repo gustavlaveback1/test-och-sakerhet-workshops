@@ -93,4 +93,13 @@ public class DataBaseTestHelper {
             stmt.executeUpdate();
         }
     }
+
+    public void clearBooks() throws SQLException {
+        try (Connection conn = ds.getConnection();
+                Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DELETE FROM book_loan");
+            stmt.executeUpdate("DELETE FROM book");
+            stmt.executeUpdate("DELETE FROM book_edition");
+        }
+    }
 }
