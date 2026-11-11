@@ -1,7 +1,6 @@
 package se.yrgo.libraryapp.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -9,18 +8,23 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import se.yrgo.libraryapp.dao.ClassificationDao;
 import se.yrgo.libraryapp.entities.DdsClassification;
 
+@ExtendWith(MockitoExtension.class)
 public class ClassificationControllerTest {
 
-    private ClassificationDao classificationDao;
-    private ClassificationController classificationController;
+    @Mock
+    ClassificationDao classificationDao;
+
+    ClassificationController classificationController;
 
     @BeforeEach
     void setUp() {
-        classificationDao = mock(ClassificationDao.class);
         classificationController = new ClassificationController(classificationDao);
     }
 

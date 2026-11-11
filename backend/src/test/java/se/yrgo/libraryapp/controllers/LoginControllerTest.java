@@ -2,7 +2,6 @@ package se.yrgo.libraryapp.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,7 +11,9 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.jooby.Context;
 import io.jooby.Cookie;
@@ -24,131 +25,135 @@ import se.yrgo.libraryapp.entities.UserId;
 import se.yrgo.libraryapp.entities.forms.LoginData;
 import se.yrgo.libraryapp.services.UserService;
 
+@ExtendWith(MockitoExtension.class)
 public class LoginControllerTest {
-    private UserService userService;
-    private RoleDao roleDao;
-    private SessionDao sessionDao;
-    private Context context;
 
-    private LoginController loginController;
+        @Mock
+        UserService userService;
 
-    @BeforeEach
-    void setUp() {
-        userService = mock(UserService.class);
-        roleDao = mock(RoleDao.class);
-        sessionDao = mock(SessionDao.class);
-        context = mock(Context.class);
+        @Mock
+        RoleDao roleDao;
 
-        loginController = new LoginController(
-                userService,
-                roleDao,
-                sessionDao);
-    }
+        @Mock
+        SessionDao sessionDao;
 
-    @Test
-    void successfulLogin() {
-        UserId userId = UserId.of(1);
-        UUID sessionId = UUID.randomUUID();
+        @Mock
+        Context context;
 
-        LoginData loginData = new LoginData("testuser", "password");
+        LoginController loginController;
 
-        List<Role> expectedRoles = List.of(Role.USER);
+        @BeforeEach
+        void setUp() {
+                loginController = new LoginController(
+                                userService,
+                                roleDao,
+                                sessionDao);
+        }
 
-        when(userService.validate("testuser", "password"))
-                .thenReturn(Optional.of(userId));
+        @Test
+        void successfulLogin() {
+                UserId userId = UserId.of(1);
+                UUID sessionId = UUID.randomUUID();
 
-        when(sessionDao.create(userId))
-                .thenReturn(sessionId);
+                LoginData loginData = new LoginData("testuser", "password");
 
-        when(roleDao.get(userId))
-                .thenReturn(expectedRoles);
+                List<Role> expectedRoles = List.of(Role.USER);
 
-        List<Role> result = loginController.login(context, null, loginData);
+                when(userService.validate("testuser", "password"))
+                                .thenReturn(Optional.of(userId));
 
-        assertThat(result).containsExactly(Role.USER);
+                when(sessionDao.create(userId))
+                                .thenReturn(sessionId);
 
-        verify(context).setResponseCookie(any(Cookie.class));
+                when(roleDao.get(userId))
+                                .thenReturn(expectedRoles);
 
-        verify(userService).validate("testuser", "password");
-    }
+                List<Role> result = loginController.login(context, null, loginData);
 
-    @Test
-    void unsuccessfulLogin() {
+                assertThat(result).containsExactly(Role.USER);
 
-        LoginData loginData = new LoginData("testuser", "password");
+                verify(context).setResponseCookie(any(Cookie.class));
 
-        when(userService.validate("testuser", "password"))
-                .thenReturn(Optional.empty());
+                verify(userService).validate("testuser", "password");
+        }
 
-        List<Role> result = loginController.login(context, null, loginData);
+        @Test
+        void unsuccessfulLogin() {
 
-        assertThat(result).isEmpty();
+                LoginData loginData = new LoginData("testuser", "password");
 
-        verify(context).setResponseCode(StatusCode.UNAUTHORIZED);
-    }
+                when(userService.validate("testuser", "password"))
+                                .thenReturn(Optional.empty());
 
-    @Test
-    void loginWithValidSession() {
-        UserId userId = UserId.of(1);
-        UUID sessionId = UUID.randomUUID();
+                List<Role> result = loginController.login(context, null, loginData);
 
-        LoginData loginData = new LoginData("testuser", "password");
+                assertThat(result).isEmpty();
 
-        when(sessionDao.validate(sessionId))
-                .thenReturn(userId);
+                verify(context).setResponseCode(StatusCode.UNAUTHORIZED);
+        }
 
-        List<Role> result = loginController.login(
-                context, sessionId.toString(), loginData);
+        @Test
+        void loginWithValidSession() {
+                UserId userId = UserId.of(1);
+                UUID sessionId = UUID.randomUUID();
 
-        assertThat(result).isEmpty();
-    }
+                LoginData loginData = new LoginData("testuser", "password");
 
-    @Test
-    void loginWithInvalidSession() {
-        LoginData loginData = new LoginData("testuser", "password");
+                when(sessionDao.validate(sessionId))
+                                .thenReturn(userId);
 
-        when(userService.validate("testuser", "password"))
-                .thenReturn(Optional.empty());
+                List<Role> result = loginController.login(
+                                context, sessionId.toString(), loginData);
 
-        List<Role> result = loginController.login(
-                context, "invalid session", loginData);
+                assertThat(result).isEmpty();
+        }
 
-        assertThat(result).isEmpty();
+        @Test
+        void loginWithInvalidSession() {
+                LoginData loginData = new LoginData("testuser", "password");
 
-        verify(context).setResponseCode(StatusCode.UNAUTHORIZED);
-    }
+                when(userService.validate("testuser", "password"))
+                                .thenReturn(Optional.empty());
 
-    @Test
-    void isLoggedInWithValidSession() {
-        UUID sessionId = UUID.randomUUID();
-        UserId userId = UserId.of(1);
+                List<Role> result = loginController.login(
+                                context, "invalid session", loginData);
 
-        List<Role> expectedRoles = List.of(Role.USER);
+                assertThat(result).isEmpty();
 
-        when(sessionDao.validate(sessionId))
-                .thenReturn(userId);
+                verify(context).setResponseCode(StatusCode.UNAUTHORIZED);
+        }
 
-        when(roleDao.get(userId))
-                .thenReturn(expectedRoles);
+        @Test
+        void isLoggedInWithValidSession() {
+                UUID sessionId = UUID.randomUUID();
+                UserId userId = UserId.of(1);
 
-        List<Role> result = loginController.isLoggedIn(
-                sessionId.toString());
+                List<Role> expectedRoles = List.of(Role.USER);
 
-        assertThat(result).containsExactly(Role.USER);
-    }
+                when(sessionDao.validate(sessionId))
+                                .thenReturn(userId);
 
-    @Test
-    void isLoggedInWithInvalidSession() {
-        List<Role> result = loginController.isLoggedIn("invalid-session");
+                when(roleDao.get(userId))
+                                .thenReturn(expectedRoles);
 
-        assertThat(result).isEmpty();
-    }
+                List<Role> result = loginController.isLoggedIn(
+                                sessionId.toString());
 
-    @Test
-    void isLoggedInWithNullSession() {
-        List<Role> result = loginController.isLoggedIn(null);
+                assertThat(result).containsExactly(Role.USER);
+        }
 
-        assertThat(result).isEmpty();
-    }
-    
+        @Test
+        void isLoggedInWithInvalidSession() {
+                List<Role> result = loginController.isLoggedIn("invalid-session");
+
+                assertThat(result).isEmpty();
+        }
+
+        @Test
+        void isLoggedInWithNullSession() {
+                List<Role> result = loginController.isLoggedIn(null);
+
+                assertThat(result).isEmpty();
+        }
+
 }
